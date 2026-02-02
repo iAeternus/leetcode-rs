@@ -1,3 +1,4 @@
+//! <https://leetcode.cn/problems/longest-consecutive-sequence>
 use std::collections::HashSet;
 
 pub struct Solution;

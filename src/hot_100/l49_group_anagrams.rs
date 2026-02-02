@@ -1,3 +1,4 @@
+//! <https://leetcode.cn/problems/group-anagrams>
 use std::collections::HashMap;
 
 pub struct Solution;

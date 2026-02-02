@@ -1,3 +1,4 @@
+//! <https://leetcode.cn/problems/two-sum>
 use std::collections::HashMap;
 
 pub struct Solution;
