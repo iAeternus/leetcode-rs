@@ -2,6 +2,7 @@
 //! <https://leetcode.cn/problem-list/z3D0lQKQ/>
 mod l11_container_with_most_water;
 mod l128_longest_consecutive_sequence;
+mod l15_3sum;
 mod l1_two_sum;
 mod l20_valid_parentheses;
 mod l283_move_zeroes;
