@@ -1,7 +1,6 @@
-use leetcode_rs::{LineReader, input};
+pub struct Solution;
 
-struct Solution;
-
+#[allow(dead_code)]
 impl Solution {
     pub fn is_valid(s: String) -> bool {
         let mut stack = Vec::new();
@@ -27,8 +26,16 @@ impl Solution {
     }
 }
 
-fn main() {
-    let mut r = LineReader::new();
-    let s = input!(r, String);
-    println!("{}", Solution::is_valid(s));
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test() {
+        assert!(Solution::is_valid("()".into()));
+        assert!(Solution::is_valid("()[]{}".into()));
+        assert!(!Solution::is_valid("(]".into()));
+        assert!(Solution::is_valid("([])".into()));
+        assert!(!Solution::is_valid("([)]".into()));
+    }
 }
