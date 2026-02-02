@@ -133,6 +133,7 @@ mod tests {
     use super::*;
 
     #[test]
+    #[ignore = "Including blocking input"]
     fn test() {
         let mut r = LineReader::new();
 
