@@ -6,4 +6,5 @@ mod l15_3sum;
 mod l1_two_sum;
 mod l20_valid_parentheses;
 mod l283_move_zeroes;
+mod l42_trapping_rain_water;
 mod l49_group_anagrams;

@@ -1,3 +1,4 @@
+//! <https://leetcode.cn/problems/3sum>
 pub struct Solution;
 
 // 本题也可以使用HashSet来帮助去重，这样就没有这么多去重trick
