@@ -3,3 +3,4 @@
 mod l1_two_sum;
 mod l20_valid_parentheses;
 mod l49_group_anagrams;
+mod l128_longest_consecutive_sequence;
