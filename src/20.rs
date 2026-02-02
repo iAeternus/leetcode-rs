@@ -1,4 +1,4 @@
-use leetcode_rs::LineReader;
+use leetcode_rs::{LineReader, input};
 
 struct Solution;
 
@@ -28,7 +28,7 @@ impl Solution {
 }
 
 fn main() {
-    let mut reader = LineReader::new();
-    let s: String = reader.next();
+    let mut r = LineReader::new();
+    let s = input!(r, String);
     println!("{}", Solution::is_valid(s));
 }

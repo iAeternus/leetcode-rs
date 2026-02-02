@@ -1,3 +1,3 @@
 mod line_reader;
 
-pub use line_reader::LineReader;
+pub use line_reader::*;

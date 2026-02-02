@@ -1,58 +1,128 @@
-use std::{io, str::FromStr};
+use std::io::{self, BufRead, BufReader};
+use std::str::FromStr;
 
 pub struct LineReader {
-    input: Vec<String>,
-    index: usize,
+    buffer: Vec<String>,
+    reader: BufReader<io::Stdin>,
 }
 
 impl LineReader {
     pub fn new() -> Self {
-        let mut reader = LineReader {
-            input: Vec::new(),
-            index: 0,
-        };
-        reader.go_next();
-        reader
-    }
-
-    pub fn next<T: FromStr>(&mut self) -> T {
-        let res = self.input[self.index].trim().parse::<T>();
-        self.index += 1;
-        if self.index >= self.input.len() {
-            self.go_next();
+        let reader = BufReader::new(io::stdin());
+        LineReader {
+            buffer: Vec::new(),
+            reader,
         }
-        res.ok().unwrap()
     }
 
-    pub fn next_vec<T: FromStr>(&mut self) -> Vec<T> {
-        let res = self
-            .input
-            .iter()
-            .map(|x| {
-                x.parse::<T>()
-                    .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "Failed"))
-            })
-            .collect::<Result<Vec<T>, _>>()
-            .unwrap();
-        self.go_next();
-        res
+    /// 读取下一个标记并解析为指定类型
+    pub fn next<T: FromStr>(&mut self) -> Option<T> {
+        while self.buffer.is_empty() {
+            let mut line = String::new();
+            match self.reader.read_line(&mut line) {
+                Ok(0) => return None, // EOF
+                Ok(_) => {
+                    self.buffer = line.split_whitespace().map(|s| s.to_string()).collect();
+                }
+                Err(_) => return None,
+            }
+        }
+
+        let token = self.buffer.remove(0);
+        token.parse::<T>().ok()
     }
 
-    fn go_next(&mut self) {
-        self.clear();
-        self.read();
+    /// 强制读取并解析，如果失败会panic
+    pub fn next_parse<T: FromStr>(&mut self) -> T {
+        self.next().expect("Failed to parse input")
     }
 
-    fn clear(&mut self) {
-        self.input.clear();
-        self.index = 0;
+    /// 读取整行并解析为向量
+    pub fn next_vec<T: FromStr>(&mut self) -> Option<Vec<T>> {
+        let mut line = String::new();
+        match self.reader.read_line(&mut line) {
+            Ok(0) => None,
+            Ok(_) => {
+                let vec: Result<Vec<T>, _> = line.split_whitespace().map(|s| s.parse()).collect();
+                vec.ok()
+            }
+            Err(_) => None,
+        }
     }
 
-    fn read(&mut self) {
-        let stdin = io::stdin();
-        let mut buf = String::new();
-        stdin.read_line(&mut buf).unwrap();
-        self.input = buf.split_whitespace().map(|s| s.to_owned()).collect();
-        self.index = 0;
+    /// 读取整行作为字符串（保留空白字符）
+    pub fn next_line(&mut self) -> Option<String> {
+        let mut line = String::new();
+        match self.reader.read_line(&mut line) {
+            Ok(0) => None,
+            Ok(_) => {
+                if line.ends_with('\n') {
+                    line.pop();
+                    if line.ends_with('\r') {
+                        line.pop();
+                    }
+                }
+                Some(line)
+            }
+            Err(_) => None,
+        }
     }
+
+    /// 读取指定数量的元素
+    pub fn next_n<T: FromStr>(&mut self, n: usize) -> Option<Vec<T>> {
+        let mut result = Vec::with_capacity(n);
+        for _ in 0..n {
+            match self.next() {
+                Some(value) => result.push(value),
+                None => return None,
+            }
+        }
+        Some(result)
+    }
+
+    /// 检查是否还有更多输入
+    pub fn has_next(&mut self) -> bool {
+        !self.buffer.is_empty() || {
+            let mut line = String::new();
+            match self.reader.read_line(&mut line) {
+                Ok(0) => false,
+                Ok(_) => {
+                    self.buffer = line.split_whitespace().map(|s| s.to_string()).collect();
+                    !self.buffer.is_empty()
+                }
+                Err(_) => false,
+            }
+        }
+    }
+
+    /// 读取到特定分隔符（如逗号分隔）
+    pub fn next_delimited<T: FromStr>(&mut self, delimiter: char) -> Option<Vec<T>> {
+        let line = self.next_line()?;
+        let vec: Result<Vec<T>, _> = line.split(delimiter).map(|s| s.trim().parse()).collect();
+        vec.ok()
+    }
+}
+
+#[macro_export]
+macro_rules! input {
+    ($reader:expr, $($t:ty),+) => {
+        ($($reader.next_parse::<$t>()),+)
+    };
+
+    ($reader:expr, $($t:ty),+) => {
+        ($($reader.next_parse::<$t>()),+)
+    };
+}
+
+#[macro_export]
+macro_rules! input_vec {
+    // 读取向量（整行）
+    ($reader:expr, $t:ty) => {
+        $reader.next_vec::<$t>().unwrap()
+    };
+
+    // 读取特定长度的向量
+    ($reader:expr, $t:ty, $n:expr) => {
+        $reader.next_n::<$t>($n).unwrap()
+    };
 }
